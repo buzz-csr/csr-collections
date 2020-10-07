@@ -1,19 +1,16 @@
 package com.naturalmotion;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.stream.JsonGenerator;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -26,20 +23,10 @@ public class Start {
     }
 
     public static void writeResult(File file, JsonObject jsonObjectBuild) {
-        StringWriter sw = new StringWriter();
-        Map<String, Object> properties = new HashMap<>(1);
-        properties.put(JsonGenerator.PRETTY_PRINTING, true);
-
-        JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
-        JsonWriter jsonWriter = writerFactory.createWriter(sw);
-
-        jsonWriter.writeObject(jsonObjectBuild);
-        jsonWriter.close();
-
-        try (FileWriter myWriter = new FileWriter(file.getAbsolutePath() + "/collections.json")) {
-            myWriter.write(sw.toString());
-            myWriter.close();
-        } catch (IOException e) {
+        try (Writer out = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(file.getAbsolutePath() + "/collections.json"), StandardCharsets.UTF_8));) {
+            out.write(jsonObjectBuild.toString());
+        } catch (Exception e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
@@ -54,14 +41,10 @@ public class Start {
         for (File actual : file.listFiles()) {
             if (actual.isDirectory()) {
                 content.add(parseDirectory(actual, getNewPath(path, actual), Json.createObjectBuilder()));
-            } else {
-                if (actual.getName().startsWith("#")) {
-                    jsonObject.add("Fusions", actual.getName());
-                } else if (actual.getName().endsWith(".txt")) {
-                    hasCar = true;
-                    String name = FilenameUtils.removeExtension(actual.getName());
-                    cars.add(name);
-                }
+            } else if (actual.getName().endsWith(".txt")) {
+                hasCar = true;
+                String name = FilenameUtils.removeExtension(actual.getName());
+                cars.add(name);
             }
         }
         jsonObject.add("content", content.build());
