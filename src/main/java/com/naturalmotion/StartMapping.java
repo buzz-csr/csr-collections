@@ -1,24 +1,27 @@
 package com.naturalmotion;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
-import javax.json.stream.JsonParsingException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
+import javax.json.stream.JsonParsingException;
 
 public class StartMapping {
 
@@ -52,7 +55,8 @@ public class StartMapping {
 			e.printStackTrace();
 		}
 
-		try (FileWriter fileWriter = new FileWriter(fileCarName);) {
+		try (FileOutputStream stream = new FileOutputStream(fileCarName);
+				OutputStreamWriter fileWriter = new OutputStreamWriter(stream, StandardCharsets.UTF_8);) {
 			JsonObjectBuilder newObject = Json.createObjectBuilder();
 			for (Entry<String, JsonValue> entry : listToSort) {
 				newObject.add(entry.getKey(), entry.getValue());
